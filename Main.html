@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!= include('CSS')?>
+  </head>
+  <body class="bodyTable">
+    <main class="container-lg mainTable">
+      <div class="mt-3 mb-3">
+        <input type="text" class="form-control" id="buscarRegistro" placeholder="Buscar..."> <!-- id=input-search -->
+      </div>
+      
+      <div class="table-responsive divTable">
+        <table class="table table-hover table-bordered align-middle">
+          <thead>
+            <tr class="text-center align-middle">
+              <th>Acciones</th>
+              <th>Urgencia</th>
+              <th>Reporte</th>
+              <th>Correo</th>
+              <th>Solicitante</th>
+              <th>Área del Incidente</th>
+              <th>Tipo de Problema</th>
+              <!-- <th>Descripción</th> -->
+            </tr>
+          </thead>
+          <tbody class="table-group-divider text-center" id="tableBody-usuarios">
+            
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <template id="rowTemplate">
+      <tr>
+        <td class="template-acciones"><i class="bi bi-pencil-square button-edit me-3" role="button" onclick="editarUsuarioModal(this)"></i><i class="bi bi-trash button-delete" role="button" onclick="borrarUsuarioModal(this)"></i></td>
+        <td class="template-urgencia"></td>
+        <td class="template-reporte"></td>
+        <td class="template-correo"></td>
+        <td class="template-solicitante"></td>
+        <td class="template-area"></td>
+        <td class="template-problema"></td>
+        <td style="visibility:collapse; display:none;" class="template-descripcion"></td>
+      </tr>
+    </template>
+
+    <!-- Modal Create -->
+    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          
+          <div class="modal-body">
+            <form name="crearRegistro" id="crearRegistro"> <!-- = crearUsuario -->
+              <input type="text" class="form-control mb-3" id="idRegistro" name="idRegistro" hidden>
+              <div class="row mb-2">
+                <!-- CORREO -->
+                <div class="col">
+                  <label class="h6" for="correoRegistro"><b>Correo</b></label>
+                  <input type="email" class="form-control mb-3" id="correoRegistro" name="correoRegistro" placeholder="ejemplo-correo@gmail.com">
+                </div>
+                <!-- SOLICITANTE -->
+                <div class="col">
+                  <label class="h6" for="solicitanteRegistro"><b>Solicitante</b></label>
+                  <input type="text" class="form-control mb-3" id="solicitanteRegistro" name="solicitanteRegistro">
+                </div>
+                <!-- ÁREA -->
+                <div class="col">
+                  <label class="h6" for="areaRegistro"><b>Área Incidente</b></label>
+                  <select class="form-select mb-2" aria-label="areaRegistro" name="areaRegistro" id="areaRegistro">
+                    <option value="Administración">Administración</option>
+                    <option value="Recursos Humanos">Recursos Humanos</option>
+                    <option value="Finanzas y Contabilidad">Finanzas y Contabilidad</option>
+                    <option value="Marketing y Ventas">Marketing y Ventas</option>
+                    <option value="Operaciones">Operaciones</option>
+                    <option value="Tecnología de la Información">Tecnología de la Información</option>
+                    <option value="Servicio al Cliente">Servicio al Cliente</option>
+                  </select>
+                </div>
+              </div>
+
+
+              <!-- PROBLEMA -->
+              <fieldset class="mb-3">
+                <legend class="h6"><b>Tipo de Problema</b></legend>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="chkHardware" name="problemas" value="Problemas de Hardware"  data-pregunta="problemaRegistro">
+                  <label class="form-check-label" for="chkHardware">Hardware</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="chkSoftware" name="problemas" value="Problemas de Software"  data-pregunta="problemaRegistro">
+                  <label class="form-check-label" for="chkSoftware">Software</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="chkRed" name="problemas" value="Problemas de Red"  data-pregunta="problemaRegistro">
+                  <label class="form-check-label" for="chkRed">Red</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="chkCuenta" name="problemas" value="Problemas de Cuenta"  data-pregunta="problemaRegistro">
+                  <label class="form-check-label" for="chkCuenta">Cuenta</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="chkImpresion" name="problemas" value="Problemas de Impresion"  data-pregunta="problemaRegistro">
+                  <label class="form-check-label" for="chkImpresion">Impresion</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="chkSeguridad" name="problemas" value="Problemas de Seguridad"  data-pregunta="problemaRegistro">
+                  <label class="form-check-label" for="chkSeguridad">Seguridad</label>
+                </div>
+              </fieldset>
+
+
+              <div class="row mb-2">
+                <!-- DESCRIPCIÓN -->
+                <div class="col">
+                  <label class="h6" for="descripcionRegistro"><b>Descripción del problema</b></label>
+                  <input type="text" class="form-control mb-3" id="descripcionRegistro" name="descripcionRegistro"> 
+                </div>
+                <!-- URGENCIA DEL REPORTE -->
+                <div class="col">
+                  <label class="h6" for="urgenciaRegistro"><b>Urgencia del Problema</b></label>
+                  <select class="form-select mb-2" aria-label="urgenciaRegistro" name="urgenciaRegistro" id="urgenciaRegistro">
+                    <option value="Alta">Alta</option>
+                    <option value="Media">Media</option>
+                    <option value="Baja">Baja</option>
+                  </select>
+                </div> 
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearForm()">Cerrar</button>
+            <button type="button" class="btn btn-success" onclick="validarFormulario()" id="actualizar">Guardar Cambios</button>
+            <button class="btn btn-success d-none btnLoading" type="button" disabled id="loadingButton">
+              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+              Actualizando...
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Modal Delete -->
+    <div class="modal fade" id="borrarModal" tabindex="-1" aria-labelledby="borrarModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="borrarModalLabel">Eliminar Reporte</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>¿Estás seguro de que deseas eliminar este reporte?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearForm()">Cerrar</button>
+            <button type="button" class="btn btn-danger" onclick="validarBorrado(this)" id="borrarRegistro">Borrar</button>
+            <button class="btn btn-danger d-none btnLoading" type="button" disabled id="loadingButton2">
+              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+              Borrando...
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Modal Alerta -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="alertModalLabel">STV Platform</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="customModalBody">
+            <p>  </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <?!= include('JS')?>
+  </body>
+</html>
