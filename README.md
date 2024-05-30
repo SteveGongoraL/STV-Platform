@@ -1,4 +1,4 @@
-# Instrucciones
+# Instrucciones ✔
 Este ejercicio utiliza Google Workspace e involucra varias herramientas:
 
 - Apps Script: Para la creación y funcionamiento de la tabla.
