@@ -1,0 +1,175 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+  window.addEventListener("load", buscarDatos);
+  document.getElementById("buscarRegistro").addEventListener("input",onInputChange);
+
+  function validarFormulario(){
+    loadingOnOff();
+    const form = document.getElementById('crearRegistro');
+    google.script.run.withSuccessHandler(result => {
+      loadingOnOff();
+      const tableBody = document.getElementById('tableBody-usuarios');
+      tableBody.innerHTML = '';
+      buscarDatos();
+      form.reset();
+      const crearModal = bootstrap.Modal.getOrCreateInstance("#createModal");
+      crearModal.hide();
+      document.getElementById('customModalBody').innerText = result;
+      $('#alertModal').modal('show');
+    })
+    .withFailureHandler(error => {
+      console.error("Error en la llamada a editarUsuario:", error);
+    })
+    .editarUsuario(form);
+  }
+
+
+  function buscarDatos(){
+    google.script.run
+    .withSuccessHandler(filtrarDatos=>{
+      let tableBody = document.getElementById("tableBody-usuarios");
+      var template = document.getElementById("rowTemplate");
+      var templateContent = template.content;
+
+      filtrarDatos.forEach(usuario =>{
+        const tr = templateContent.cloneNode(true);
+
+        const accionesCol = tr.querySelector(".template-acciones");
+        const editButton = tr.querySelector(".button-edit");
+        const deleteButton = tr.querySelector(".button-delete");
+        const reporteCol = tr.querySelector(".template-reporte");
+        const correoCol = tr.querySelector(".template-correo");
+        const solicitanteCol = tr.querySelector(".template-solicitante");
+        const areaCol = tr.querySelector(".template-area");
+        const problemaCol = tr.querySelector(".template-problema");
+        const descripcionCol = tr.querySelector(".template-descripcion");
+        const urgenciaCol = tr.querySelector(".template-urgencia");
+        console.log(usuario);
+         
+        editButton.dataset.usuarioId = usuario[1];
+        deleteButton.dataset.usuarioId = usuario[1];
+        reporteCol.textContent = usuario[1];
+        correoCol.textContent = usuario[2];
+        solicitanteCol.textContent = usuario[3];
+        areaCol.textContent = usuario[4];
+        problemaCol.textContent = usuario[5];
+        descripcionCol.textContent = usuario[6];
+        urgenciaCol.textContent = usuario[7];
+
+        tableBody.appendChild(tr);
+      })
+    })
+    .readUsers();
+  }
+
+
+  function editarUsuarioModal(button){
+      /* Guardar el valor de la fila seleccionada */
+      const tableRow = button.parentNode.parentNode;
+      /* console.log(tableRow); */
+      const id = button.dataset.usuarioId;
+      const correo = tableRow.cells[3].innerHTML;
+      const solicitante = tableRow.cells[4].innerHTML;
+      const area = tableRow.cells[5].innerHTML;
+      const problema = tableRow.cells[6].innerHTML; //Aqui se guarda el valor en la tabla
+      const descripcion = tableRow.cells[7].innerHTML;
+      const urgencia = tableRow.cells[1].innerHTML;
+      /* console.log(area); */
+
+      const crearModal = bootstrap.Modal.getOrCreateInstance("#createModal");
+      crearModal.show();
+
+      /* Llenando los campos */
+      document.getElementById("idRegistro").value = id;
+      document.getElementById("correoRegistro").value = correo;
+      document.getElementById("solicitanteRegistro").value = solicitante;
+      document.getElementById("areaRegistro").value = area;
+      document.getElementById("descripcionRegistro").value = descripcion;
+      document.getElementById("urgenciaRegistro").value = urgencia;
+
+      /* Llenando los Checkbox */
+      /* Definiendo las variables que contienen el estado del checkbox */
+      var chkHardware = document.getElementById("chkHardware");
+      var chkSoftware = document.getElementById("chkSoftware");
+      var chkRed = document.getElementById("chkRed");
+      var chkCuenta = document.getElementById("chkCuenta");
+      var chkImpresion = document.getElementById("chkImpresion");
+      var chkSeguridad = document.getElementById("chkSeguridad");
+
+      /* Verificando que el checkbox se marque si contiene una palabra en especifico */
+      chkHardware.checked = problema.includes("Hardware");
+      chkSoftware.checked = problema.includes("Software");
+      chkRed.checked = problema.includes("Red");
+      chkCuenta.checked = problema.includes("Cuenta");
+      chkImpresion.checked = problema.includes("Impresion");
+      chkSeguridad.checked = problema.includes("Seguridad");
+  }
+
+
+  function borrarUsuarioModal(button){
+    const id = button.dataset.usuarioId;
+    /* console.log(id); */
+    const borrarButton = document.getElementById('borrarRegistro');
+    borrarButton.dataset.usuarioId = id;
+    const borrarModal = bootstrap.Modal.getOrCreateInstance("#borrarModal");
+    borrarModal.show();
+  }
+
+
+  function clearForm(){
+    const form = document.getElementById('crearRegistro');
+    form.reset();
+    const dataAttributeId = document.getElementById('borrarRegistro');
+    dataAttributeId.removeAttribute('data-id'); /* Min 12 */
+  }
+
+
+  function validarBorrado(button){
+    loadingOnOff();
+    /* console.log(button) */
+    const id = button.dataset.usuarioId;
+
+    google.script.run.withSuccessHandler(result=>{
+      loadingOnOff();
+      const tableBody = document.getElementById('tableBody-usuarios');
+      tableBody.innerHTML = '';
+      buscarDatos();
+      const dataAttributeId = document.getElementById('borrarRegistro');
+      dataAttributeId.removeAttribute("data-usuario-id");
+      const borrarModal = bootstrap.Modal.getOrCreateInstance("#borrarModal");
+      borrarModal.hide();
+      document.getElementById('customModalBody').innerText = result;
+      $('#alertModal').modal('show');
+    })
+    .borrarUsuario(id);
+  }
+
+
+  function loadingOnOff(){
+    document.querySelector('#actualizar').classList.toggle("d-none");
+    document.querySelector('#loadingButton').classList.toggle("d-none");
+    document.querySelector('#borrarRegistro').classList.toggle("d-none");
+    document.querySelector('#loadingButton2').classList.toggle("d-none");
+  }
+
+
+  function onInputChange(){
+    let inputText = document.getElementById("buscarRegistro").value.toString().toLowerCase();
+    /* console.log(inputText); */
+    let tableBodyI = document.getElementById("tableBody-usuarios");
+    let tableRowsI = tableBodyI.getElementsByTagName("tr");
+    /* console.log(tableRowsI); */
+    for (let i = 0; i < tableRowsI.length; i++){
+      /* console.log(tableRowsI[i].textContent); */
+      let textoConsulta = tableRowsI[i].textContent.toString().toLowerCase();
+      if(textoConsulta.indexOf(inputText) === -1){
+        tableRowsI[i].style.visibility = "collapse";
+      }else{
+        tableRowsI[i].style.visibility = "";
+      }
+    }
+  }
+
+</script>
